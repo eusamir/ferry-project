@@ -49,9 +49,9 @@ const Signup = () => {
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
           <div className="flex justify-center mb-4">
-            <img src={ferryLogo} alt="FferrySmart" className="h-16 w-16" />
+            <img src={ferryLogo} alt="Ferrysmart" className="h-16 w-16" />
           </div>
-          <CardTitle className="text-2xl">FferrySmart</CardTitle>
+          <CardTitle className="text-2xl">Ferrysmart</CardTitle>
           <CardDescription className="text-lg mt-6">Criar Conta</CardDescription>
           <p className="text-sm text-muted-foreground mt-2">
             Preencha os dados abaixo para criar sua conta

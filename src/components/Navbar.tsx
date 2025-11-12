@@ -19,8 +19,8 @@ export const Navbar = () => {
     <nav className="border-b bg-background">
       <div className="container mx-auto px-4 h-16 flex items-center justify-between">
         <Link to={isLoggedIn ? "/dashboard" : "/"} className="flex items-center gap-3">
-          <img src={ferryLogo} alt="FferrySmart" className="h-12 w-12" />
-          <span className="font-bold text-xl">FferrySmart</span>
+          <img src={ferryLogo} alt="Ferrysmart" className="h-12 w-12" />
+          <span className="font-bold text-xl">Ferrysmart</span>
         </Link>
         
         <div className="flex items-center gap-4">
