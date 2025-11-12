@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-// ✅ NOVO: Importando Wrench e AlertTriangle
 import { ArrowLeft, Ship, Clock, Users, RefreshCw, Wrench, AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -9,7 +8,7 @@ import { Progress } from "@/components/ui/progress";
 import { Navbar } from "@/components/Navbar";
 import { getFerryStatus, FerryStatus } from "@/services/api"; 
 import { useToast } from "@/hooks/use-toast";
-import { cn } from "@/lib/utils"; // ✅ NOVO: Importando 'cn' para classes condicionais
+import { cn } from "@/lib/utils"; 
 
 const Status = () => {
   const navigate = useNavigate();
@@ -71,17 +70,14 @@ const Status = () => {
 
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
           
-          {/* ⚠️ ATUALIZAÇÃO VISUAL AQUI ⚠️ */}
           {ferries.map((ferry) => {
             
-            // Verifica se está em manutenção (backend envia "Em manutenção")
             const isManutencao = ferry.status.toLowerCase().includes("manutenção");
             
             const progress = (ferry.max_capacity > 0) 
               ? (ferry.capacity / ferry.max_capacity) * 100 
               : 0;
             
-            // Define a cor da badge
             const getVariant = (status: string) => {
               if (isManutencao) return "destructive";
               if (status === "Em operação") return "default";
@@ -90,7 +86,6 @@ const Status = () => {
             };
 
             return (
-              // 1. MUDANÇA NO CARD: Fica vermelho e com opacidade
               <Card 
                 key={ferry.id} 
                 className={cn(
@@ -101,7 +96,6 @@ const Status = () => {
                 <CardContent className="p-6">
                   <div className="flex items-start justify-between mb-4">
                     <div className="flex items-center gap-3">
-                      {/* 2. MUDANÇA NO ÍCONE: Troca <Ship> por <Wrench> */}
                       {isManutencao ? (
                         <Wrench className="w-6 h-6 text-destructive" />
                       ) : (
@@ -112,7 +106,6 @@ const Status = () => {
                     <Badge variant={getVariant(ferry.status)}>{ferry.status}</Badge>
                   </div>
 
-                  {/* 3. MUDANÇA NO CONTEÚDO: Bloco condicional */}
                   {isManutencao ? (
                     <div className="space-y-3 text-center py-4">
                       <AlertTriangle className="w-10 h-10 text-destructive mx-auto" />
@@ -120,12 +113,10 @@ const Status = () => {
                         Fora de Operação
                       </p>
                       <p className="text-sm text-destructive/80">
-                        {/* A api.ts já formata 'next_departure' para a previsão de retorno */}
                         {ferry.next_departure}
                       </p>
                     </div>
                   ) : (
-                    // Bloco de conteúdo original para ferries normais
                     <div className="space-y-3">
                       <div className="flex items-center gap-2 text-sm text-muted-foreground">
                         <Clock className="w-4 h-4" />

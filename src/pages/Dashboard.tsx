@@ -1,18 +1,17 @@
 import { Link } from "react-router-dom";
+// ✅ NOVO: Importando o ícone de Download
+import { Calendar, Bell, Ship, AlertTriangle, Activity, CheckCircle, Clock, Download } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Calendar, Bell, Ship, AlertTriangle, Activity, CheckCircle, Clock } from "lucide-react";
 import { Navbar } from "@/components/Navbar";
 import { useQuery } from "@tanstack/react-query";
-// ✅ NOVO: Importando a API de relatórios e os gráficos
 import { getRelatorioCompleto } from "@/services/api";
 import { ChartContainer, ChartTooltip, ChartTooltipContent, ChartLegend, ChartLegendContent } from "@/components/ui/chart";
 import { Bar, BarChart, CartesianGrid, Line, LineChart, XAxis, YAxis, ResponsiveContainer } from "recharts";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Alert, AlertDescription } from "@/components/ui/alert"; // ✅ NOVO: Importando Alert
 import React from "react";
-import { Alert, AlertDescription } from "@/components/ui/alert";
 
-// ✅ NOVO: Configuração de cores para os gráficos
 const chartConfig = {
   normal: {
     label: "Sistema Normal (min)",
@@ -33,16 +32,49 @@ const chartConfig = {
 };
 
 const Dashboard = () => {
-  // ✅ NOVO: Busca os dados do relatório de 15 dias
   const { data: relatorio, isLoading, isError } = useQuery({
     queryKey: ["relatorioCompleto"],
     queryFn: getRelatorioCompleto,
   });
 
-  // ✅ NOVO: Formata os dados do gráfico de linha
+  // ✅ NOVO: Função para gerar e baixar o arquivo JSON
+  const handleDownloadRelatorio = () => {
+    if (!relatorio) {
+      return; // Botão deve estar desabilitado se não houver dados
+    }
+
+    try {
+      // 1. Converte o objeto do relatório (que já temos) em texto JSON
+      const jsonString = JSON.stringify(relatorio, null, 2);
+      
+      // 2. Cria um "Blob", que é a representação do arquivo
+      const blob = new Blob([jsonString], { type: "application/json" });
+      
+      // 3. Cria uma URL temporária para esse arquivo na memória do navegador
+      const url = URL.createObjectURL(blob);
+      
+      // 4. Cria um link (<a>) invisível
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `relatorio_ferrybot_15dias_${new Date().toISOString().split('T')[0]}.json`; // Nome do arquivo
+      
+      // 5. Simula o clique no link para iniciar o download
+      document.body.appendChild(a);
+      a.click();
+      
+      // 6. Limpa o link e a URL da memória
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+
+    } catch (error) {
+      console.error("Erro ao gerar download:", error);
+      // (Opcional: você pode usar o useToast() aqui para notificar um erro)
+    }
+  };
+
+  // ... (funções de formatação de gráfico continuam as mesmas)
   const temposPorDiaData = React.useMemo(() => {
     if (!relatorio) return [];
-    // O backend envia os datasets, precisamos combiná-los
     const labels = relatorio.graficos.temposPorDia.labels;
     const normalData = relatorio.graficos.temposPorDia.datasets[0].data;
     const comReservaData = relatorio.graficos.temposPorDia.datasets[2].data;
@@ -56,7 +88,6 @@ const Dashboard = () => {
     }));
   }, [relatorio]);
   
-  // ✅ NOVO: Formata os dados do gráfico de barras
   const comparacaoMediaData = React.useMemo(() => {
     if (!relatorio) return [];
     const labels = relatorio.graficos.comparacaoMedia.labels;
@@ -73,14 +104,24 @@ const Dashboard = () => {
       <Navbar />
       
       <main className="container mx-auto px-4 py-8">
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold mb-2">Dashboard</h1>
-          <p className="text-muted-foreground text-lg">
-            Análise de 15 dias: Sistema Atual vs. Sistema com Reservas
-          </p>
+        
+        <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
+          <div>
+            <h1 className="text-4xl font-bold mb-2">Dashboard</h1>
+            <p className="text-muted-foreground text-lg">
+              Análise de 15 dias: Sistema Atual vs. Sistema com Reservas
+            </p>
+          </div>
+          <Button
+            onClick={handleDownloadRelatorio}
+            disabled={isLoading || isError || !relatorio}
+            variant="outline"
+          >
+            <Download className="w-4 h-4 mr-2" />
+            Baixar Relatório (JSON)
+          </Button>
         </div>
 
-        {/* --- Seção de Gráficos --- */}
         {isLoading && (
           <div className="grid md:grid-cols-2 gap-6 mb-12">
             <Skeleton className="h-[400px] w-full" />
@@ -123,7 +164,6 @@ const Dashboard = () => {
               </CardContent>
             </Card>
 
-            {/* --- Gráfico de Barras (Média Geral) --- */}
             <Card>
               <CardHeader>
                 <CardTitle>Tempo Médio de Espera (Geral)</CardTitle>
@@ -144,7 +184,6 @@ const Dashboard = () => {
               </CardContent>
             </Card>
 
-            {/* --- Cards de Análise --- */}
             <Card className="col-span-1 md:col-span-2 bg-success/10 border-success">
               <CardHeader className="flex-row items-center gap-4 space-y-0">
                 <CheckCircle className="w-8 h-8 text-success" />
@@ -173,7 +212,6 @@ const Dashboard = () => {
         )}
 
 
-        {/* --- Action Cards (Menus) --- */}
         <div className="grid md:grid-cols-2 lg:grid-cols-5 gap-6 mb-12">
           <Link to="/reservar">
             <Card className="hover:shadow-lg transition-shadow cursor-pointer border-2 hover:border-primary">
